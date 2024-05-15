@@ -1,0 +1,54 @@
+
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../core/static/settings_types.dart';
+
+class SettingsRepository {
+  Future<Map<String, String>> loadSettings() async {
+    final storage = await SharedPreferences.getInstance();
+
+    final Map<String, String> settingsMap = {
+      SettingsTypes.autoUpdate:
+          (storage.getString(SettingsTypes.autoUpdate)) ?? 'true',
+      SettingsTypes.darkTheme:
+          (storage.getString(SettingsTypes.darkTheme)) ?? 'false',
+      SettingsTypes.noUpdateClassroom:
+          (storage.getString(SettingsTypes.noUpdateClassroom)) ?? 'false',
+      SettingsTypes.legacyFavoriteDeleted:
+          (storage.getString(SettingsTypes.legacyFavoriteDeleted)) ?? 'false',
+      SettingsTypes.hideSchedule:
+          (storage.getString(SettingsTypes.hideSchedule)) ?? 'false',
+      SettingsTypes.hideLesson:
+          (storage.getString(SettingsTypes.hideLesson)) ?? 'false',
+      SettingsTypes.weekButtonHint:
+          (storage.getString(SettingsTypes.weekButtonHint)) ?? 'false',
+      SettingsTypes.showTabDate:
+          (storage.getString(SettingsTypes.showTabDate)) ?? 'true',
+    };
+
+    return settingsMap;
+  }
+
+  Future<Map<String, String>> saveSettings(String type, String value) async {
+    final storage = await SharedPreferences.getInstance();
+    await storage.setString(type, value);
+
+    return await loadSettings();
+  }
+
+  Future<void> clearAll() async {
+    final storage = await SharedPreferences.getInstance();
+    await storage.clear();
+  }
+
+  Future<void> clearFavorite() async {
+    final storage = await SharedPreferences.getInstance();
+    final list = storage.getKeys();
+    list.removeWhere(
+        (key) => key.contains('Service') && !key.contains('MainFavService'));
+
+    for (var key in list) {
+      storage.remove(key);
+    }
+  }
+}
