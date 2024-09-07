@@ -7,6 +7,8 @@ import '../../core/parser/parser.dart';
 import '../../core/parser/students_parser.dart';
 import '../../core/parser/teachers_parser.dart';
 import '../../core/static/app_routes.dart';
+import '../../core/time/bloc/week_number_bloc.dart';
+import '../../core/time/week_number_repository.dart';
 import '../classrooms/classrooms_module.dart';
 import '../favorite/favorite_button_bloc/favorite_button_bloc.dart';
 import '../favorite/favorite_module.dart';
@@ -24,9 +26,10 @@ import 'home_page.dart';
 class HomeModule extends Module {
   @override
   void binds(i) {
+    i.addSingleton(WeekNumberRepository.new);
+    i.addSingleton(WeekNumberBloc.new);
     i.addSingleton(FavoriteButtonBloc.new);
     i.addSingleton(FavoriteScheduleBloc.new);
-    i.addSingleton(Logger.new);
     i.addSingleton(FavoriteRepository.new);
     i.addSingleton(MainRepository.new);
     i.addSingleton(TeachersParser.new);

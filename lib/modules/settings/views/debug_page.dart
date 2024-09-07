@@ -13,11 +13,9 @@ class DebugPage extends StatefulWidget {
 
 class _DebugPageState extends State<DebugPage> {
   List<String> _logList = [];
-  late final Logger _logger;
 
   @override
   void initState() {
-    _logger = Modular.get<Logger>();
     _loadLog();
     super.initState();
   }
@@ -38,7 +36,7 @@ class _DebugPageState extends State<DebugPage> {
             ),
       floatingActionButton: FloatingActionButton(
           onPressed: () async {
-            await _logger.clearLog();
+            await Logger.clearLog();
             _loadLog();
           },
           child: const Icon(Icons.delete)),
@@ -82,7 +80,7 @@ class _DebugPageState extends State<DebugPage> {
   }
 
   Future<void> _loadLog() async {
-    final list = await _logger.getLog();
+    final list = await Logger.getLog();
     setState(() {
       _logList = list;
     });

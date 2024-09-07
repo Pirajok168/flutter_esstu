@@ -5,6 +5,8 @@ import 'package:meta/meta.dart';
 
 
 import '../../../core/logger/custom_exception.dart';
+import '../../../core/logger/errors.dart';
+import '../../../core/logger/logger.dart';
 import '../../../core/parser/teachers_parser.dart';
 
 part 'faculty_event.dart';
@@ -31,7 +33,8 @@ class FacultyBloc extends Bloc<FacultyEvent, FacultyState> {
           facultyDepartmentLinkMap: facultyDepartmentLinkMap));
     } on CustomException catch (e) {
       emit(FacultiesError(e.message));
-    } catch (e) {
+    } catch (e, stack) {
+      Logger.error(title: Errors.teachersSchedule, exception: e, stack: stack);
       emit(FacultiesError('Ошибка: ${e.runtimeType}'));
     }
   }

@@ -3,6 +3,8 @@ import 'package:meta/meta.dart';
 
 
 import '../../../core/logger/custom_exception.dart';
+import '../../../core/logger/errors.dart';
+import '../../../core/logger/logger.dart';
 import '../../../core/main_repository.dart';
 import '../../../core/models/schedule_model.dart';
 import '../../../core/parser/parser.dart';
@@ -58,7 +60,8 @@ class CurrentGroupBloc extends Bloc<CurrentGroupEvent, CurrentGroupState> {
       ));
     } on CustomException catch (e) {
       emit(CurrentGroupError(e.message));
-    } catch (e) {
+    } catch (e, stack) {
+      Logger.error(title: Errors.studentsSchedule, exception: e, stack: stack);
       emit(CurrentGroupError('Ошибка: ${e.runtimeType}'));
     }
   }

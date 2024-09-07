@@ -33,49 +33,16 @@ class FacultiesPage extends StatelessWidget {
                   return const CircularProgressIndicator();
                 }
 
-                if (state is FacultiesLoaded ||
-                    state is CurrentFacultyLoaded) {
+                if (state is FacultiesLoaded || state is CurrentFacultyLoaded) {
                   final map = state.facultyDepartmentLinkMap!;
 
                   return Center(
                     child: ListView(
-                      children: [
-                        ...List.generate(
-                          map.keys.length,
-                          (index) => _facultyButton(map.keys.elementAt(index),
-                              map[map.keys.elementAt(index)]!, context),
-                        ),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 15.0),
-                          child: Divider(),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            top: 8.0,
-                            left: 15.0,
-                            right: 15.0,
-                            bottom: 30.0,
-                          ),
-                          child: SizedBox(
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                await _noUpdateDialog(context);
-                                Modular.to.pushNamed(AppRoutes.zoTeachersRoute);
-                              },
-                              child: Container(
-                                height: 50.0,
-                                alignment: AlignmentDirectional.center,
-                                child: const Text(
-                                  'Заочное отделение (beta)',
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      children: List.generate(
+                        map.keys.length,
+                        (index) => _facultyButton(map.keys.elementAt(index),
+                            map[map.keys.elementAt(index)]!, context),
+                      ),
                     ),
                   );
                 }
@@ -91,38 +58,6 @@ class FacultiesPage extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Future<void> _noUpdateDialog(BuildContext context) async {
-    final state = BlocProvider.of<SettingsBloc>(context).state;
-    if (state is SettingsLoaded && !state.noUpdateClassroom) {
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Внимание'),
-          content: const Text(
-            'Расписание для преподавателей у заочных групп'
-            ' не имеет возможности обновления из избранного',
-            style: TextStyle(fontSize: 16),
-          ),
-          actions: [
-            OutlinedButton(
-                onPressed: () {
-                  BlocProvider.of<SettingsBloc>(context).add(ChangeSetting(
-                      settingType: SettingsTypes.noUpdateClassroom,
-                      value: 'true'));
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Больше не\nпоказывать')),
-            FilledButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text('Ок')),
-          ],
-        ),
-      );
-    }
   }
 
   Widget _facultyButton(String facultyName,

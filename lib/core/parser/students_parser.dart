@@ -6,6 +6,7 @@ import 'package:flutter_ui/core/parser/parser.dart';
 
 import '../logger/custom_exception.dart';
 import '../logger/errors.dart';
+import '../logger/logger.dart';
 import '../models/schedule_model.dart';
 import '../static/lesson_builder.dart';
 import '../static/schedule_links.dart';
@@ -13,7 +14,7 @@ import '../static/schedule_type.dart';
 import '../static/students_type.dart';
 
 class StudentsParser extends Parser {
-  StudentsParser(super.repository, super.logger);
+  StudentsParser(super.repository);
 
   ///Мэп группа - ссылка по курсам
   Future<Map<String, Map<String, Map<String, String>>>>
@@ -91,8 +92,8 @@ class StudentsParser extends Parser {
       scheduleMap.removeWhere((key, value) => scheduleMap[key]!.isEmpty);
 
       if (scheduleMap.isEmpty) {
-        logger.error(
-          title: Errors.scheduleError,
+        Logger.error(
+          title: Errors.schedule,
           exception: 'Не найдено ни одного расписания. scheduleMap.isEmpty',
         );
 
@@ -102,9 +103,9 @@ class StudentsParser extends Parser {
 
       return scheduleMap;
     } catch (e, stack) {
-      logger.error(title: Errors.scheduleError, exception: e, stack: stack);
+      Logger.error(title: Errors.schedule, exception: e, stack: stack);
 
-      throw CustomException(message: Errors.scheduleError);
+      throw CustomException(message: Errors.schedule);
     }
   }
 
@@ -148,18 +149,18 @@ class StudentsParser extends Parser {
       if (scheduleLinksMap.isEmpty) {
         const text =
             'Не найдено ни одной ссылки на расписание. scheduleLinksMap.isEmpty';
-        logger.error(
-          title: Errors.scheduleError,
+        Logger.error(
+          title: Errors.schedule,
           exception: text,
         );
-        throw CustomException(message: '${Errors.scheduleError} $text');
+        throw CustomException(message: '${Errors.schedule} $text');
       }
 
       return scheduleLinksMap;
     } catch (e, stack) {
-      logger.error(title: Errors.scheduleError, exception: e, stack: stack);
+      Logger.error(title: Errors.schedule, exception: e, stack: stack);
 
-      throw CustomException(message: Errors.scheduleError);
+      throw CustomException(message: Errors.schedule);
     }
   }
 
@@ -318,12 +319,12 @@ class StudentsParser extends Parser {
     } on CustomException {
       rethrow;
     } catch (e, stack) {
-      logger.error(
-        title: Errors.scheduleError,
+      Logger.error(
+        title: Errors.schedule,
         exception: e,
         stack: stack,
       );
-      throw CustomException(message: Errors.scheduleError);
+      throw CustomException(message: Errors.schedule);
     }
 
     for (var building in buildingsScheduleMap.keys) {
@@ -391,12 +392,12 @@ class StudentsParser extends Parser {
     } on CustomException {
       rethrow;
     } catch (e, stack) {
-      logger.error(
-        title: Errors.scheduleError,
+      Logger.error(
+        title: Errors.schedule,
         exception: e,
         stack: stack,
       );
-      throw CustomException(message: Errors.scheduleError);
+      throw CustomException(message: Errors.schedule);
     }
 
     for (var key in teachersScheduleMap.keys) {
@@ -559,8 +560,8 @@ class StudentsParser extends Parser {
             dayOfWeekIndex++;
           }
         } catch (e, stack) {
-          logger.error(
-            title: Errors.pageLoadingError,
+          Logger.error(
+            title: Errors.pageLoading,
             exception: e,
             stack: stack,
           );
@@ -591,26 +592,26 @@ class StudentsParser extends Parser {
 
     /// Если хотя бы один поток вернул ошибку
     if (loadingError) {
-      logger.error(
-        title: Errors.scheduleError,
+      Logger.error(
+        title: Errors.schedule,
         exception: 'Большое количество ошибок при загрузке страниц '
             'расписания заочных групп. loadingError == true',
       );
-      throw CustomException(message: Errors.scheduleError);
+      throw CustomException(message: Errors.schedule);
     }
 
     if (warnings.isNotEmpty) {
-      logger.warning(title: Errors.zoClassroomsWarning, exception: warnings);
+      Logger.warning(title: Errors.zoClassroomsWarning, exception: warnings);
     }
 
     scheduleMap.removeWhere((key, value) => value.isEmpty);
     if (scheduleMap.isEmpty) {
-      logger.error(
-        title: Errors.scheduleError,
+      Logger.error(
+        title: Errors.schedule,
         exception: 'Не найдено ни одного расписания заочных групп. '
             'teachersScheduleMap.isEmpty',
       );
-      throw CustomException(message: Errors.scheduleError);
+      throw CustomException(message: Errors.schedule);
     }
   }
 }

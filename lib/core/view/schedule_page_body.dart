@@ -13,6 +13,7 @@ import '../models/schedule_model.dart';
 import '../static/schedule_time_data.dart';
 import '../static/schedule_type.dart';
 import '../static/settings_types.dart';
+import '../time/current_time.dart';
 import 'lesson_section.dart';
 
 class SchedulePageBody extends StatefulWidget {
@@ -47,7 +48,7 @@ class SchedulePageBodyState extends State<SchedulePageBody>
   /// Дата недель для аудиторий заочного
   late List<String?> weekDates;
 
-  bool get isCurrentWeek => selectedWeekIndex == _getCurrentWeekIndex;
+  bool get isCurrentWeek => selectedWeekIndex == CurrentTime.weekIndex;
 
   int numOfLessons = 6;
   int lastTabIndex = 0;
@@ -75,7 +76,7 @@ class SchedulePageBodyState extends State<SchedulePageBody>
     super.initState();
 
     numOfWeeks = widget.scheduleModel!.numOfWeeks;
-    currentDayOfWeekIndex = _getCurrentDayOfWeekIndex;
+    currentDayOfWeekIndex = CurrentTime.dayOfWeekIndex;
     currentLessonIndex = _getCurrentLessonIndex;
 
     final settingsState = BlocProvider.of<SettingsBloc>(context).state;
@@ -109,7 +110,8 @@ class SchedulePageBodyState extends State<SchedulePageBody>
     if (isZo) numOfLessons = 7;
 
     if (isScheduleChanged) {
-      selectedWeekIndex = _getCurrentWeekIndex;
+      selectedWeekIndex = CurrentTime.weekIndex;
+      numOfWeeks = widget.scheduleModel!.numOfWeeks;
 
       if (selectedWeekIndex >= numOfWeeks) {
         selectedWeekIndex = 0;
@@ -128,7 +130,7 @@ class SchedulePageBodyState extends State<SchedulePageBody>
     //и не у заочников
     if (isScheduleChanged && !isZo) {
       if (showEmptyDays) {
-        lastTabIndex = _getCurrentDayOfWeekIndex % 6;
+        lastTabIndex = CurrentTime.dayOfWeekIndex % 6;
       } else {
         lastTabIndex = widget.scheduleModel!
             .dayOfWeekByAbsoluteIndex(selectedWeekIndex, currentDayOfWeekIndex);
@@ -273,7 +275,7 @@ class SchedulePageBodyState extends State<SchedulePageBody>
       final formatter = DateFormat("\ndd.MM");
       final mondayDate = DateTime.now().subtract(
         Duration(
-          days: Jiffy.now().dayOfWeek - 1 - (!isCurrentWeek ? 7 : 0),
+          days: CurrentTime.dayOfWeekIndex - (!isCurrentWeek ? 7 : 0),
         ),
       );
 
@@ -381,7 +383,7 @@ class SchedulePageBodyState extends State<SchedulePageBody>
                     },
                     child: Text(weekDates[index] ??
                         ('${index + 1} неделя'
-                            '${index == _getCurrentWeekIndex && !isZo ? ' (Сейчас)' : ''}')),
+                            '${index == CurrentTime.weekIndex && !isZo ? ' (Сейчас)' : ''}')),
                   ),
                 ),
               ),
@@ -505,8 +507,7 @@ class SchedulePageBodyState extends State<SchedulePageBody>
 
   int get _getCurrentLessonIndex {
     int currentLesson = -1;
-    final currentTime =
-        Jiffy.now().dateTime.minute + Jiffy.now().dateTime.hour * 60;
+    final currentTime = CurrentTime.minuteOfDay;
     if (currentTime >= 540 && currentTime <= 635) {
       currentLesson = 0;
     } else if (currentTime >= 645 && currentTime <= 740) {
@@ -524,9 +525,9 @@ class SchedulePageBodyState extends State<SchedulePageBody>
     return currentLesson;
   }
 
-  int get _getCurrentWeekIndex => (Jiffy.now().weekOfYear + 1) % 2;
+  //int get _getCurrentWeekIndex => (Jiffy.now().weekOfYear + 1) % 2;
 
-  int get _getCurrentDayOfWeekIndex => Jiffy.now().dateTime.weekday - 1;
+  //int get _getCurrentDayOfWeekIndex => Jiffy.now().dateTime.weekday - 1;
 
   @override
   bool get wantKeepAlive => true;

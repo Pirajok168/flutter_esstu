@@ -4,6 +4,8 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/logger/custom_exception.dart';
+import '../../../core/logger/errors.dart';
+import '../../../core/logger/logger.dart';
 import '../../../core/parser/students_parser.dart';
 import '../../../core/parser/teachers_parser.dart';
 import '../../../core/static/schedule_type.dart';
@@ -57,10 +59,11 @@ class SearchListBloc extends Bloc<SearchListEvent, SearchListState> {
         await _streamController.close();
       }
       emit(SearchingError(e.message));
-    } catch (e) {
+    } catch (e, stack) {
       if (_streamController.hasListener) {
         await _streamController.close();
       }
+      Logger.error(title: Errors.search, exception: e, stack: stack);
       emit(SearchingError('Ошибка: ${e.runtimeType}'));
     }
   }
@@ -77,7 +80,8 @@ class SearchListBloc extends Bloc<SearchListEvent, SearchListState> {
 
         emit(currentState.copyWith(
             searchedList: namesList.take(15).toList()..sort()));
-      } catch (e) {
+      } catch (e, stack) {
+        Logger.error(title: Errors.search, exception: e, stack: stack);
         emit(SearchingError('Ошибка: ${e.runtimeType}'));
       }
     }
@@ -85,7 +89,7 @@ class SearchListBloc extends Bloc<SearchListEvent, SearchListState> {
 
   @override
   Future<void> close() async {
-    if(_streamController.hasListener) {
+    if (_streamController.hasListener) {
       await _streamController.close();
     }
     return super.close();

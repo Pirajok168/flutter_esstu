@@ -12,9 +12,8 @@ import '../static/schedule_type.dart';
 
 class Parser {
   final MainRepository repository;
-  final Logger logger;
 
-  Parser(this.repository, this.logger);
+  Parser(this.repository);
 
   Future<ScheduleModel> updateSchedule({
     required String link1,
@@ -31,9 +30,9 @@ class Parser {
         pagesList.add(await repository.loadPage(link2));
       }
     } catch (e, stack) {
-      logger.error(title: Errors.updateError, exception: e, stack: stack);
+      Logger.error(title: Errors.update, exception: e, stack: stack);
 
-      throw CustomException(message: Errors.updateError);
+      throw CustomException(message: Errors.update);
     }
 
     if (!pagesList[0].contains(scheduleName) &&
@@ -41,7 +40,7 @@ class Parser {
       final text =
           'Расписание "$scheduleName" не найдено по сохраненной ссылке. '
           '1:"$link1", 2:"$link2"';
-      logger.warning(title: Errors.updateError, exception: text);
+      Logger.warning(title: Errors.update, exception: text);
 
       throw CustomException(message: text);
     }
@@ -78,9 +77,9 @@ class Parser {
         pagesList.add(await repository.loadPage(link2));
       }
     } catch (e, stack) {
-      logger.error(title: Errors.pageLoadingError, exception: e, stack: stack);
+      Logger.error(title: Errors.pageLoading, exception: e, stack: stack);
 
-      throw CustomException(message: Errors.pageLoadingError);
+      throw CustomException(message: Errors.pageLoading);
     }
 
     final ScheduleModel scheduleModel = ScheduleModel(
@@ -164,21 +163,21 @@ class Parser {
       }
 
       if (scheduleModel.isEmpty) {
-        logger.warning(
-          title: Errors.scheduleModelError,
+        Logger.warning(
+          title: Errors.scheduleModel,
           exception: 'Модель расписания пуста. scheduleModel.isEmpty',
         );
       }
 
       return scheduleModel;
     } catch (e, stack) {
-      logger.error(
-        title: Errors.scheduleModelError,
+      Logger.error(
+        title: Errors.scheduleModel,
         exception: e,
         stack: stack,
       );
 
-      throw CustomException(message: Errors.scheduleModelError);
+      throw CustomException(message: Errors.scheduleModel);
     }
   }
 

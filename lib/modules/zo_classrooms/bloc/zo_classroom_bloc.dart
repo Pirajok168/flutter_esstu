@@ -4,6 +4,8 @@ import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 
 import '../../../core/logger/custom_exception.dart';
+import '../../../core/logger/errors.dart';
+import '../../../core/logger/logger.dart';
 import '../../../core/models/schedule_model.dart';
 import '../../../core/parser/students_parser.dart';
 
@@ -81,10 +83,11 @@ class ZoClassroomsBloc extends Bloc<ZoClassroomEvent, ZoClassroomsState> {
         await _streamController.close();
       }
       emit(ZoClassroomsError(e.message));
-    } catch (e) {
+    } catch (e, stack) {
       if (_streamController.hasListener) {
         await _streamController.close();
       }
+      Logger.error(title: Errors.zoClassroomsSchedule, exception: e, stack: stack);
       emit(ZoClassroomsError('Ошибка: ${e.runtimeType}'));
     }
   }

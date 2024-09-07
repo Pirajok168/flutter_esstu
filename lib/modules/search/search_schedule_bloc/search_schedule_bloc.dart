@@ -3,10 +3,13 @@ import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
 import '../../../core/logger/custom_exception.dart';
+import '../../../core/logger/errors.dart';
+import '../../../core/logger/logger.dart';
 import '../../../core/models/schedule_model.dart';
 import '../../../core/parser/parser.dart';
 
 part 'search_schedule_event.dart';
+
 part 'search_schedule_state.dart';
 
 class SearchScheduleBloc
@@ -38,7 +41,8 @@ class SearchScheduleBloc
       ));
     } on CustomException catch (e) {
       emit(SearchScheduleError(e.message));
-    } catch (e) {
+    } catch (e, stack) {
+      Logger.error(title: Errors.schedule, exception: e, stack: stack);
       emit(SearchScheduleError('Ошибка: ${e.runtimeType}'));
     }
   }

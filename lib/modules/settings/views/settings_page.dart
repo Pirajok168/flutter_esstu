@@ -7,17 +7,17 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/logger/logger.dart';
 import '../../../core/static/app_routes.dart';
 import '../../../core/static/settings_types.dart';
+import '../../../core/time/bloc/week_number_bloc.dart';
+import '../../../core/time/current_time.dart';
 import '../bloc/settings_bloc.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
-  static const _version = '3.8.6';
+  static const _version = '3.9.1';
 
   @override
   Widget build(BuildContext context) {
-    final logger = Modular.get<Logger>();
-
     return Scaffold(
       appBar: AppBar(title: const Text('Настройки')),
       body: BlocBuilder<SettingsBloc, SettingsState>(
@@ -30,10 +30,9 @@ class SettingsPage extends StatelessWidget {
             return ListView(
               children: [
                 const ListTile(
-                    title: Text(
-                  'Основные',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )),
+                  title: Text('Внешний вид',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
                 SwitchListTile(
                   title: const Text('Темная тема'),
                   value: state.darkTheme,
@@ -44,11 +43,11 @@ class SettingsPage extends StatelessWidget {
                   },
                 ),
                 SwitchListTile(
-                  title: const Text('Автоматическое обновление расписания в избранном'),
-                  value: state.autoUpdate,
+                  title: const Text('Показывать даты дней недели'),
+                  value: state.showTabDate,
                   onChanged: (value) {
                     BlocProvider.of<SettingsBloc>(context).add(ChangeSetting(
-                        settingType: SettingsTypes.autoUpdate,
+                        settingType: SettingsTypes.showTabDate,
                         value: value.toString()));
                   },
                 ),
@@ -70,20 +69,55 @@ class SettingsPage extends StatelessWidget {
                         value: value.toString()));
                   },
                 ),
+                const ListTile(
+                  title: Text('Номер недели',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
                 SwitchListTile(
-                  title: const Text('Показывать даты дней недели'),
-                  value: state.showTabDate,
+                  title: const Text('Определение номера недели с сайта'),
+                  value: state.autoWeekIndexSet,
                   onChanged: (value) {
+                    if (value) {
+                      Modular.get<WeekNumberBloc>().add(CheckWeekNumber());
+                    }
+
                     BlocProvider.of<SettingsBloc>(context).add(ChangeSetting(
-                        settingType: SettingsTypes.showTabDate,
+                        settingType: SettingsTypes.autoWeekIndexSet,
                         value: value.toString()));
                   },
                 ),
+                SwitchListTile(
+                  title: const Text('Инвертировать номер недели'),
+                  value: state.weekIndexShifting,
+                  onChanged: state.autoWeekIndexSet
+                      ? null
+                      : (value) {
+                          if (value) {
+                            CurrentTime.weekShifting = 1;
+                          } else {
+                            CurrentTime.weekShifting = 0;
+                          }
+
+                          BlocProvider.of<SettingsBloc>(context).add(
+                              ChangeSetting(
+                                  settingType: SettingsTypes.weekIndexShifting,
+                                  value: value.toString()));
+                        },
+                ),
                 const ListTile(
-                    title: Text(
-                  'Отладка',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )),
+                  title: Text('Прочее',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ),
+                SwitchListTile(
+                  title: const Text(
+                      'Автоматическое обновление расписания в избранном'),
+                  value: state.autoUpdate,
+                  onChanged: (value) {
+                    BlocProvider.of<SettingsBloc>(context).add(ChangeSetting(
+                        settingType: SettingsTypes.autoUpdate,
+                        value: value.toString()));
+                  },
+                ),
                 ListTile(
                   title: const Text('Логи'),
                   onTap: () {
@@ -111,6 +145,8 @@ class SettingsPage extends StatelessWidget {
                                 onPressed: () {
                                   BlocProvider.of<SettingsBloc>(context)
                                       .add(ClearAll());
+                                  Modular.get<WeekNumberBloc>()
+                                      .add(CheckWeekNumber());
                                   Navigator.of(context).pop();
                                 },
                                 child: const Text('Да'))
@@ -149,7 +185,7 @@ class SettingsPage extends StatelessWidget {
                                 await launchUrl(Uri.parse(
                                     'https://github.com/ned0emo/flutter_esstu_schedule/issues'));
                               } catch (exception, stack) {
-                                logger.error(
+                                Logger.error(
                                   title: "Ошибка открытия ссылки на github",
                                   exception: exception,
                                   stack: stack,
@@ -174,7 +210,7 @@ class SettingsPage extends StatelessWidget {
                                 await launchUrl(Uri.parse(
                                     'https://www.flaticon.com/authors/smashicons'));
                               } catch (exception, stack) {
-                                logger.error(
+                                Logger.error(
                                   title: "Ошибка открытия ссылки на flaticon",
                                   exception: exception,
                                   stack: stack,
@@ -199,7 +235,7 @@ class SettingsPage extends StatelessWidget {
                                 await launchUrl(Uri.parse(
                                     'https://fontawesome.com/v4/icons'));
                               } catch (exception, stack) {
-                                logger.error(
+                                Logger.error(
                                   title:
                                       "Ошибка открытия ссылки на fontawesome",
                                   exception: exception,
