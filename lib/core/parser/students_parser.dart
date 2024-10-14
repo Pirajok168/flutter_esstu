@@ -18,7 +18,7 @@ class StudentsParser extends Parser {
 
   ///Мэп группа - ссылка по курсам
   Future<Map<String, Map<String, Map<String, String>>>>
-      courseGroupLinkMap() async {
+  courseGroupLinkMap() async {
     final schedulePages = <String>[];
 
     final studentsLinks = [
@@ -65,7 +65,7 @@ class StudentsParser extends Parser {
       _parseStudentGroups(
         scheduleMap,
         schedulePages,
-        (map, name, link, type, i) {
+            (map, name, link, type, i) {
           switch (type) {
             case (StudentsType.mag):
               final currentCourse = i % 6 + 1;
@@ -74,7 +74,7 @@ class StudentsParser extends Parser {
                     link;
               } else {
                 scheduleMap[StudentsType.mag]!['${currentCourse - 4} курс']![
-                    name] = link;
+                name] = link;
               }
               break;
             case (StudentsType.bak):
@@ -138,7 +138,7 @@ class StudentsParser extends Parser {
         schedulePages,
 
         /// функция заполнения мэпы для расписания студентов
-        (map, name, link, type, i) {
+            (map, name, link, type, i) {
           map[name] ??= [];
           map[name]!.add(link);
         },
@@ -169,13 +169,13 @@ class StudentsParser extends Parser {
   /// [schedulePages] - страницы с учебными группами
   /// [mapCreating] - функция для заполнения переданного мэпа
   void _parseStudentGroups<T extends Map>(
-    T map,
-    List<String> schedulePages,
-    void Function(T map, String name, String link, String type, int j)
-        mapCreating, {
-    List<String>? defaultScheduleLinks,
-    List<String>? defaultStudentsTypes,
-  }) async {
+      T map,
+      List<String> schedulePages,
+      void Function(T map, String name, String link, String type, int j)
+      mapCreating, {
+        List<String>? defaultScheduleLinks,
+        List<String>? defaultStudentsTypes,
+      }) async {
     final studentsScheduleLinks = defaultScheduleLinks ??
         [
           ScheduleLinks.bakPrefix,
@@ -199,12 +199,19 @@ class StudentsParser extends Parser {
       int emptinessCounter = 0;
       int j = 0;
       for (String groupSection in splittedPage) {
-        if (emptinessCounter > 11) break;
+        if (emptinessCounter > 11) {
+          break;
+        }
 
-        final name = groupSection.substring(
-            groupSection.indexOf('n">') + 3, groupSection.indexOf('</FONT'));
+        final name = groupSection
+            .substring(
+            groupSection.indexOf('n">') + 3, groupSection.indexOf('</FONT'))
+            .trim();
         if (!name.contains(RegExp(r'[0-9]|[А-Я]'))) {
-          emptinessCounter++;
+          if (name.isEmpty) {
+            emptinessCounter++;
+          }
+
           j++;
           continue;
         }
@@ -223,8 +230,8 @@ class StudentsParser extends Parser {
   /// [streamController] - для отслеживания прогресса в блоке, после окончания
   /// обязательно закрывать
   Future<Map<String, List<ScheduleModel>>> buildingsZoClassroomsMap(
-    StreamController<Map<String, String>> streamController,
-  ) async {
+      StreamController<Map<String, String>> streamController,
+      ) async {
     final Map<String, List<ScheduleModel>> buildingsScheduleMap = {
       '1 корпус': [],
       '2 корпус': [],
@@ -274,7 +281,7 @@ class StudentsParser extends Parser {
         streamController,
 
         /// Функция заполнения мэпы для аудиторий заочного
-        (map, lesson, dayOfWeekIndex, weekNames, lessonIndex, dayOfWeekDate) {
+            (map, lesson, dayOfWeekIndex, weekNames, lessonIndex, dayOfWeekDate) {
           final classrooms = lesson
               .split('а.')
               .skip(1)
@@ -338,11 +345,11 @@ class StudentsParser extends Parser {
   /// [streamController] - для отслеживания прогресса в блоке, после окончания
   /// обязательно закрывать
   Future<Map<String, List<ScheduleModel>>> lettersZoTeachersMap(
-    StreamController<Map<String, String>> streamController,
-  ) async {
+      StreamController<Map<String, String>> streamController,
+      ) async {
     /// Буква - список расписаний
     final SplayTreeMap<String, List<ScheduleModel>> teachersScheduleMap =
-        SplayTreeMap();
+    SplayTreeMap();
 
     try {
       await _zoPagesParser(
@@ -350,7 +357,7 @@ class StudentsParser extends Parser {
         streamController,
 
         /// Функция заполнения мэпы для преподов заочного
-        (map, lesson, dayOfWeekIndex, weekNames, lessonIndex, dayOfWeekDate) {
+            (map, lesson, dayOfWeekIndex, weekNames, lessonIndex, dayOfWeekDate) {
           final teachers = RegExp(LessonBuilder.teachersRegExp)
               .allMatches(lesson)
               .map((e) => e[0]!)
@@ -412,17 +419,17 @@ class StudentsParser extends Parser {
   /// В [mapCreating] передаем функцию для заполнения [map] в зависимости
   /// от того, преподов или аудитории собираем
   Future<void> _zoPagesParser(
-    Map<String, List<ScheduleModel>> scheduleMap,
-    StreamController streamController,
-    void Function(
-      Map<String, List<ScheduleModel>> map,
-      String lesson,
-      int dayOfWeekIndex,
-      List<String> weekNames,
-      int lessonIndex,
-      String dayOfWeekDate,
-    ) mapCreating,
-  ) async {
+      Map<String, List<ScheduleModel>> scheduleMap,
+      StreamController streamController,
+      void Function(
+          Map<String, List<ScheduleModel>> map,
+          String lesson,
+          int dayOfWeekIndex,
+          List<String> weekNames,
+          int lessonIndex,
+          String dayOfWeekDate,
+          ) mapCreating,
+      ) async {
     final groupLinkMap1 = await groupLinkMap(
       defaultStudentsLinks: [
         ScheduleLinks.allZo1Groups,
@@ -449,7 +456,7 @@ class StudentsParser extends Parser {
     final linksCount = groupLinkMap1.length;
 
     final threadsMaps =
-        List.generate(threadsCount, (index) => <String, List<String>>{});
+    List.generate(threadsCount, (index) => <String, List<String>>{});
 
     int i = 0;
     for (var key in groupLinkMap1.keys) {
@@ -530,7 +537,7 @@ class StudentsParser extends Parser {
                       .trim();
 
               final lessonChecker =
-                  fullLesson.replaceAll(RegExp(r'[^0-9а-яА-Я]'), '');
+              fullLesson.replaceAll(RegExp(r'[^0-9а-яА-Я]'), '');
 
               if (lessonChecker.isEmpty) {
                 lessonIndex++;
@@ -540,7 +547,7 @@ class StudentsParser extends Parser {
               final lesson = fullLesson
                   .replaceAll('и/д', '')
                   .replaceAll('пр.', '')
-                  //.replaceAll('пр', '')
+              //.replaceAll('пр', '')
                   .replaceAll('д/кл', '')
                   .replaceAll('д/к', '');
 
