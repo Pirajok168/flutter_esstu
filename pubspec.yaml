@@ -27,7 +27,7 @@ dependencies:
   bloc: ^8.1.0
   shared_preferences: ^2.2.1
   http: ^1.1.0
-  font_awesome_flutter: ^10.1.0
+  font_awesome_flutter: ^11.0.0
   enough_convert: ^1.6.0
   jiffy: ^6.2.1
   flutter_modular: ^6.1.1

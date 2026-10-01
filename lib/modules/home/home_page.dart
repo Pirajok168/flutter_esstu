@@ -283,7 +283,7 @@ final class HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _homeElevatedButtonContent(String text, IconData icon) {
+  Widget _homeElevatedButtonContent(String text, FaIconData icon) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
